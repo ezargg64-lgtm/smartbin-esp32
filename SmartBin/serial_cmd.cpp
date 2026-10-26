@@ -25,7 +25,8 @@ void SerialCmd::printHelp() {
   Serial.println(F(" 0..180   move servo to angle"));
   Serial.println(F(" t        flap test cycle (open, hold, close)"));
   Serial.println(F(" x        classify once (no movement)"));
-  Serial.println(F(" l        toggle flash LED"));
+  Serial.println(F(" l        toggle flash LED ON/OFF"));
+  Serial.println(F(" f0..f255 set flash LED brightness (0..255) & turn ON"));
   Serial.println(F(" d        read ultrasonic distance"));
   Serial.println(F(" b        re-measure ultrasonic baseline (flap empty!)"));
   Serial.println(F(" s0/s1/s2 turntable to sector (0=Organik 1=Anorganik 2=B3)"));
@@ -59,6 +60,14 @@ static void execute(char *cmd) {
 
   if ((cmd[0] == 's' || cmd[0] == 'S') && isdigit((unsigned char)cmd[1]) && cmd[2] == 0) {
     Turntable::goToSector(cmd[1] - '0');
+    return;
+  }
+
+  if ((cmd[0] == 'f' || cmd[0] == 'F') && isNumber(cmd + 1)) {
+    int b = constrain(atoi(cmd + 1), 0, 255);
+    CameraAI::setLedBrightness((uint8_t)b);
+    CameraAI::led(b > 0);
+    Serial.printf("Flash LED brightness = %d/255 (%s)\n", b, CameraAI::ledState() ? "ON" : "OFF");
     return;
   }
 

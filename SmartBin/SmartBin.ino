@@ -55,6 +55,7 @@ void printStatus() {
   DBG("\n---- STATUS ----\n");
   DBG("State      : %s%s\n", s_state == STATE_IDLE ? "IDLE" : "REARM", s_busy ? " (busy)" : "");
   DBG("Camera     : %s\n", CameraAI::ready() ? "OK" : "FAILED (safe mode)");
+  DBG("Flash LED  : %s (brightness %u/255)\n", CameraAI::ledState() ? "ON" : "OFF", CameraAI::ledBrightness());
   DBG("Flap angle : %d deg\n", Flap::angle());
   DBG("Turntable  : sector %d (%s), pos %ld, %s\n", Turntable::sector(),
       sectorName(Turntable::sector()), Turntable::position(),
@@ -150,8 +151,10 @@ void setup() {
 
   if (!camOk) {
     Display::error("Camera failed");
+    CameraAI::blinkLed(5, 100, 100);        // 5 fast blinks = camera error
     DBGLN("[BOOT] SAFE MODE: camera failed. Servo/turntable commands still work.");
   } else {
+    CameraAI::blinkLed(2, 80, 80);          // 2 short blinks = boot ready
     Display::ready();
     DBGLN("[BOOT] ready.");
   }

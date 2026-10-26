@@ -43,14 +43,35 @@
 #define RAW_ROWS   240
 #define RAW_BPP      3   // RGB888
 
-static bool     s_ready    = false;
-static bool     s_ledOn    = false;
-static uint8_t *s_snapshot = nullptr;   // RGB888 buffer (also holds the resized 96x96 image)
+static bool     s_ready      = false;
+static bool     s_ledOn      = false;
+static uint8_t  s_brightness = LED_DEFAULT_BRIGHTNESS;
+static uint8_t *s_snapshot   = nullptr;   // RGB888 buffer (also holds the resized 96x96 image)
 
 // ---------------------------------------------------------------------
 void CameraAI::led(bool on) {
   s_ledOn = on;
-  digitalWrite(LED_PIN, on ? HIGH : LOW);
+  ledcWrite(LED_LEDC_CHANNEL, on ? s_brightness : 0);
+}
+
+void CameraAI::setLedBrightness(uint8_t val) {
+  s_brightness = val;
+  if (s_ledOn) {
+    ledcWrite(LED_LEDC_CHANNEL, s_brightness);
+  }
+}
+
+uint8_t CameraAI::ledBrightness() { return s_brightness; }
+
+void CameraAI::blinkLed(int times, int onMs, int offMs) {
+  bool prev = s_ledOn;
+  for (int i = 0; i < times; i++) {
+    ledcWrite(LED_LEDC_CHANNEL, s_brightness > 0 ? s_brightness : LED_DEFAULT_BRIGHTNESS);
+    delay(onMs);
+    ledcWrite(LED_LEDC_CHANNEL, 0);
+    if (i < times - 1) delay(offMs);
+  }
+  led(prev);
 }
 
 bool CameraAI::ledState() { return s_ledOn; }
@@ -58,7 +79,9 @@ bool CameraAI::ready()    { return s_ready; }
 
 // ---------------------------------------------------------------------
 bool CameraAI::begin() {
-  pinMode(LED_PIN, OUTPUT);
+  // Use LEDC Channel 4 (Timer 2) for PWM brightness control on GPIO 4 (core v2.0.14 API)
+  ledcSetup(LED_LEDC_CHANNEL, LED_PWM_FREQ_HZ, LED_PWM_RES_BITS);
+  ledcAttachPin(LED_PIN, LED_LEDC_CHANNEL);
   led(false);
 
   camera_config_t cfg = {};

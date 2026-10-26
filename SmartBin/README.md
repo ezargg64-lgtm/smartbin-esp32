@@ -54,7 +54,7 @@ A4988: VMOT = 12V with a **100 µF cap**, **RESET bridged to SLEEP**, EN → GND
 2. Make sure the flap is **empty**, because the ultrasonic baseline is measured at boot.
 
 ## Serial commands
-`o` open · `c` close · `0..180` angle · `t` flap test · `x` classify only · `l` LED · `d` distance · `b` re-baseline · `s0/s1/s2` sector · `z` set sector 0 here · `r` full cycle · `?` status · `h` help
+`o` open · `c` close · `0..180` angle · `t` flap test · `x` classify only · `l` toggle LED · `f0..f255` set flash brightness (0..255) · `d` distance · `b` re-baseline · `s0/s1/s2` sector · `z` set sector 0 here · `r` full cycle · `?` status · `h` help
 
 ## Test order
 1. `o` / `c` / angles: calibrate `FLAP_OPEN_ANGLE` / `FLAP_CLOSE_ANGLE`

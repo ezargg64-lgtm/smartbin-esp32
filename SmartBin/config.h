@@ -45,6 +45,13 @@
 #define SERVO_FREQ_HZ       50
 #define SERVO_MIN_US       500      // pulse at 0 deg
 #define SERVO_MAX_US      2400      // pulse at 180 deg
+
+// Flash LED (GPIO 4) uses LEDC timer 2 / channel 4 so brightness can be tuned (0..255)
+// without conflicting with Camera (Timer 0) or Servo (Timer 1).
+#define LED_LEDC_CHANNEL     4      // Channel 4 belongs to LEDC Timer 2
+#define LED_PWM_FREQ_HZ   5000
+#define LED_PWM_RES_BITS     8      // 0..255 duty cycle
+#define LED_DEFAULT_BRIGHTNESS 180  // Default brightness during capture/flash (0..255; <255 prevents brownout & glare)
 #define FLAP_CLOSE_ANGLE     0      // horizontal, holds waste for inspection
 #define FLAP_OPEN_ANGLE     90      // tilted down, drops waste onto turntable
 #define FLAP_STEP_DEG        2      // smooth motion: degrees per step

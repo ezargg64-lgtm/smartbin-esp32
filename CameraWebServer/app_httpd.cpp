@@ -27,9 +27,10 @@
 #include "esp32-hal-log.h"
 #endif
 
-// LED FLASH setup
+// LED FLASH setup (ESP32 core v2.0.14 LEDC API - Channel 2 / Timer 1, avoids Camera Timer 0)
 #if defined(LED_GPIO_NUM)
-#define CONFIG_LED_MAX_INTENSITY 255
+#define CONFIG_LED_MAX_INTENSITY 180
+#define LED_LEDC_CHANNEL 2
 
 int led_duty = 0;
 bool isStreaming = false;
@@ -95,7 +96,7 @@ void enable_led(bool en) {  // Turn LED On or Off
   if (en && isStreaming && (led_duty > CONFIG_LED_MAX_INTENSITY)) {
     duty = CONFIG_LED_MAX_INTENSITY;
   }
-  ledcWrite(LED_GPIO_NUM, duty);
+  ledcWrite(LED_LEDC_CHANNEL, duty);
   //ledc_set_duty(CONFIG_LED_LEDC_SPEED_MODE, CONFIG_LED_LEDC_CHANNEL, duty);
   //ledc_update_duty(CONFIG_LED_LEDC_SPEED_MODE, CONFIG_LED_LEDC_CHANNEL);
   log_i("Set LED intensity to %d", duty);
@@ -846,7 +847,8 @@ void startCameraServer() {
 
 void setupLedFlash() {
 #if defined(LED_GPIO_NUM)
-  ledcAttach(LED_GPIO_NUM, 5000, 8);
+  ledcSetup(LED_LEDC_CHANNEL, 5000, 8);
+  ledcAttachPin(LED_GPIO_NUM, LED_LEDC_CHANNEL);
 #else
   log_i("LED flash is disabled -> LED_GPIO_NUM undefined");
 #endif
